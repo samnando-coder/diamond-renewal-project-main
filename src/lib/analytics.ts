@@ -18,54 +18,17 @@ const GA_MEASUREMENT_ID = 'G-VGB25BKEWX';
 
 /**
  * Initialize Google Analytics
- * Call this once when the app loads
+ * Note: The gtag script is already loaded in index.html
+ * This function just ensures gtag is available and tracks page views
  */
 export function initGoogleAnalytics() {
-  // Prevent double initialization
-  if (window.gtag) {
-    console.log('[GA] Google Analytics already initialized');
-    return;
-  }
-
-  // Only initialize in production or if explicitly enabled
-  if (import.meta.env.MODE === 'development' && !import.meta.env.VITE_ENABLE_GA) {
-    console.log('[GA] Google Analytics disabled in development mode');
-    return;
-  }
-
-  try {
-    // Create dataLayer
+  // gtag is already loaded from index.html, just ensure it's available
+  if (!window.gtag) {
+    // Fallback: if gtag is not available, create it
     window.dataLayer = window.dataLayer || [];
-
-    // Define gtag function
-    function gtag(...args: any[]) {
+    window.gtag = function(...args: any[]) {
       window.dataLayer!.push(args);
-    }
-
-    window.gtag = gtag;
-
-    // Load Google Analytics script
-    const script1 = document.createElement('script');
-    script1.async = true;
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    script1.onerror = () => {
-      console.error('[GA] Failed to load Google Analytics script');
     };
-    script1.onload = () => {
-      console.log('[GA] Google Analytics script loaded successfully');
-    };
-    document.head.appendChild(script1);
-
-    // Initialize GA4
-    gtag('js', new Date());
-    gtag('config', GA_MEASUREMENT_ID, {
-      page_path: window.location.pathname,
-      send_page_view: true,
-    });
-
-    console.log('[GA] Google Analytics initialized with ID:', GA_MEASUREMENT_ID);
-  } catch (error) {
-    console.error('[GA] Error initializing Google Analytics:', error);
   }
 }
 

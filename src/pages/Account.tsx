@@ -33,7 +33,7 @@ const Account = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
     setLoading(true);
-    fetch('/api/account/me', { credentials: 'include' })
+    fetch(apiUrl('/api/account/me'), { credentials: 'include' })
       .then(async (r) => {
         if (!r.ok) throw new Error('Not authenticated');
         return (await r.json()) as AccountResponse;
@@ -97,9 +97,14 @@ const Account = () => {
 
               <div className="lg:col-span-8">
                 <div className="bg-card border border-border rounded-sm p-6">
-                  <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <h2 className="font-heading text-xl text-foreground">Aankopen</h2>
-                    <Link to="/producten">
+                  <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                    <div>
+                      <h2 className="font-heading text-xl text-foreground">Bestelgeschiedenis</h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Overzicht van al je aankopen
+                      </p>
+                    </div>
+                    <Link to="/shop">
                       <Button className="bg-accent text-accent-foreground hover:bg-gold-dark">
                         Naar webshop
                       </Button>
@@ -143,21 +148,24 @@ const Account = () => {
                             </div>
                             {Array.isArray(o.items) && o.items.length ? (
                               <div className="mt-4 pt-4 border-t border-border">
-                                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2">
-                                  Items
+                                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
+                                  Bestelde items
                                 </p>
                                 <div className="space-y-2">
                                   {(o.items as Array<{ name?: string; qty?: number; priceCents?: number }>).map(
-                                    (it, idx) => (
-                                      <div key={`${o.id}-${idx}`} className="flex justify-between gap-4 text-sm">
-                                        <span className="text-foreground">
-                                          {it.qty ?? 1}× {it.name ?? 'Item'}
-                                        </span>
-                                        <span className="text-muted-foreground">
-                                          {typeof it.priceCents === 'number' ? formatEUR(it.priceCents) : ''}
-                                        </span>
-                                      </div>
-                                    ),
+                                    (it, idx) => {
+                                      const itemTotal = (it.qty ?? 1) * (it.priceCents ?? 0);
+                                      return (
+                                        <div key={`${o.id}-${idx}`} className="flex justify-between gap-4 text-sm py-1">
+                                          <span className="text-foreground">
+                                            {it.qty ?? 1}× {it.name ?? 'Item'}
+                                          </span>
+                                          <span className="text-foreground font-medium">
+                                            {typeof it.priceCents === 'number' ? formatEUR(itemTotal) : ''}
+                                          </span>
+                                        </div>
+                                      );
+                                    },
                                   )}
                                 </div>
                               </div>

@@ -101,45 +101,51 @@ export const Header = () => {
               </Button>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={`hidden md:flex p-2 rounded transition-colors ${
-                    isScrolled ? 'hover:bg-muted' : 'hover:bg-white/10'
+            {isAuthenticated ? (
+              <div className="hidden md:flex items-center gap-3">
+                <Link
+                  to="/account"
+                  className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
+                    isScrolled ? 'hover:bg-muted text-foreground' : 'hover:bg-white/10 text-cream'
                   }`}
-                  aria-label="Account"
                 >
-                  <User className={`w-5 h-5 ${isScrolled ? 'text-foreground' : 'text-cream'}`} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Account</DropdownMenuLabel>
-                {isAuthenticated ? (
-                  <>
-                    <DropdownMenuItem disabled className="opacity-80">
-                      {user?.email}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/account">Mijn account</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Uitloggen
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link to="/login">Inloggen</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/aanmelden">Aanmelden</Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {user?.name || user?.email?.split('@')[0] || 'Account'}
+                  </span>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={logout}
+                  className={`text-xs ${isScrolled ? 'text-foreground' : 'text-cream'}`}
+                >
+                  <LogOut className="w-4 h-4 mr-1" />
+                  Uitloggen
+                </Button>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <Link to="/login">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-xs ${isScrolled ? 'text-foreground' : 'text-cream'}`}
+                  >
+                    Inloggen
+                  </Button>
+                </Link>
+                <Link to="/aanmelden">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    className="text-xs tracking-wider uppercase"
+                  >
+                    Aanmelden
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             <Link
               to="/producten"
@@ -209,16 +215,29 @@ export const Header = () => {
                   </Link>
                 </div>
               ) : (
-                <Button
-                  variant="outline"
-                  className="w-full mt-2 text-xs tracking-wider uppercase"
-                  onClick={() => {
-                    logout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  Uitloggen
-                </Button>
+                <div className="mt-2 space-y-2">
+                  <Link
+                    to="/account"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block p-3 bg-muted rounded-sm"
+                  >
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Ingelogd als</p>
+                    <p className="text-sm font-medium text-foreground mt-1">
+                      {user?.name || user?.email?.split('@')[0] || 'Account'}
+                    </p>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    className="w-full text-xs tracking-wider uppercase"
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Uitloggen
+                  </Button>
+                </div>
               )}
             </nav>
           </div>

@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useSEO } from "@/hooks/useSEO";
 import { trackEvent } from "@/lib/analytics";
+import { apiUrl } from "@/lib/api";
 
 export default function ShopProduct() {
   const { id } = useParams();
@@ -54,7 +55,7 @@ export default function ShopProduct() {
     if (!isAuthenticated || !product || product.priceCents == null) return;
     setIsCheckingOut(true);
     try {
-      const res = await fetch("/api/checkout/create-session", {
+      const res = await fetch(apiUrl("/api/checkout/create-session"), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { trackPurchase } from "@/lib/analytics";
+import { apiUrl } from "@/lib/api";
 
 type OrderData = {
   id: string;
@@ -30,7 +31,7 @@ export default function ShopCheckoutSuccess() {
     }
 
     // Fetch order by session ID
-    fetch(`/api/checkout/session?session_id=${encodeURIComponent(sessionId)}`, {
+    fetch(apiUrl(`/api/checkout/session?session_id=${encodeURIComponent(sessionId)}`), {
       credentials: "include",
     })
       .then(async (res) => {

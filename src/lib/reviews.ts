@@ -12,9 +12,11 @@ export type SalonizedReviewsSummary = {
   fetchedAt: string;
 };
 
+import { apiUrl } from './api';
+
 export async function fetchGoogleReviewsSummary(): Promise<GoogleReviewsSummary | null> {
   try {
-    const res = await fetch('/api/reviews/google');
+    const res = await fetch(apiUrl('/api/reviews/google'));
     if (!res.ok) return null;
     return (await res.json()) as GoogleReviewsSummary;
   } catch {
@@ -24,7 +26,7 @@ export async function fetchGoogleReviewsSummary(): Promise<GoogleReviewsSummary 
 
 export async function fetchSalonizedReviewsSummary(): Promise<SalonizedReviewsSummary | null> {
   try {
-    const res = await fetch('/api/reviews/salonized');
+    const res = await fetch(apiUrl('/api/reviews/salonized'));
     if (!res.ok) return null;
     return (await res.json()) as SalonizedReviewsSummary;
   } catch {

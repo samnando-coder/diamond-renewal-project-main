@@ -5,8 +5,10 @@ export type StoredUser = {
 
 type ApiError = { error?: string };
 
+import { apiUrl } from './api';
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(apiUrl(path), {
     ...init,
     headers: {
       'Content-Type': 'application/json',

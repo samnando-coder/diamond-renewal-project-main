@@ -1,9 +1,11 @@
 import type { ShopProduct } from "./types";
 import { SHOP_PRODUCTS } from "@/data/shopCatalog";
 
+import { apiUrl } from '@/lib/api';
+
 export async function fetchShopProducts(): Promise<ShopProduct[]> {
   try {
-    const res = await fetch("/api/shop/products", { credentials: "include" });
+    const res = await fetch(apiUrl("/api/shop/products"), { credentials: "include" });
     if (!res.ok) throw new Error("Producten ophalen mislukt.");
     const data = (await res.json()) as { products?: ShopProduct[] };
     return data.products ?? [];

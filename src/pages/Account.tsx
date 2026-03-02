@@ -4,6 +4,7 @@ import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { apiUrl } from '@/lib/api';
 
 type AccountResponse = {
   profile: { email: string; name: string | null };

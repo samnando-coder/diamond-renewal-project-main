@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { calculateShippingCost, getShippingCostDisplay, getTotalWithShipping } from "@/features/shop/shipping";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { apiUrl } from "@/lib/api";
 
 export default function ShopCheckout() {
   const { isAuthenticated } = useAuth();
@@ -37,7 +38,7 @@ export default function ShopCheckout() {
     if (!isAuthenticated || items.length === 0) return;
     setIsCheckingOut(true);
     try {
-      const res = await fetch("/api/checkout/create-session", {
+      const res = await fetch(apiUrl("/api/checkout/create-session"), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

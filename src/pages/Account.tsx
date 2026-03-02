@@ -115,36 +115,68 @@ const Account = () => {
                     {loading ? (
                       <p className="text-sm text-muted-foreground">Laden…</p>
                     ) : orders.length === 0 ? (
-                      <div className="p-6 bg-muted rounded-sm">
-                        <p className="text-sm text-muted-foreground">
-                          Je hebt nog geen aankopen. Zodra je via de webshop bestelt, verschijnen ze hier.
+                      <div className="p-8 bg-muted rounded-sm text-center">
+                        <p className="text-base text-muted-foreground mb-4">
+                          Je hebt nog geen bestellingen geplaatst.
                         </p>
+                        <Link to="/shop">
+                          <Button className="bg-accent text-accent-foreground hover:bg-gold-dark">
+                            Begin met winkelen
+                          </Button>
+                        </Link>
                       </div>
                     ) : (
                       <div className="space-y-4">
                         {orders.map((o) => (
-                          <div key={o.id} className="p-5 border border-border rounded-sm">
-                            <div className="flex items-center justify-between gap-4 flex-wrap">
+                          <div key={o.id} className="p-5 border border-border rounded-sm hover:border-accent/50 transition-colors">
+                            <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
                               <div>
-                                <p className="text-sm text-muted-foreground">Order</p>
-                                <p className="font-medium text-foreground">{o.id}</p>
+                                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-1">
+                                  Bestelling
+                                </p>
+                                <p className="font-mono text-sm font-medium text-foreground">{o.id.slice(0, 8)}...</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm text-muted-foreground">Totaal</p>
-                                <p className="font-semibold text-accent">{formatEUR(o.totalCents)}</p>
+                                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-1">
+                                  Totaalbedrag
+                                </p>
+                                <p className="text-xl font-semibold text-accent">{formatEUR(o.totalCents)}</p>
                               </div>
                             </div>
                             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                               <p>
-                                <span className="text-muted-foreground">Status:</span> {o.status}
-                              </p>
-                              <p>
-                                <span className="text-muted-foreground">Bron:</span> {o.source}
+                                <span className="text-muted-foreground">Status:</span>{' '}
+                                <span className={`font-medium ${
+                                  o.status === 'paid' ? 'text-green-600' :
+                                  o.status === 'created' ? 'text-yellow-600' :
+                                  o.status === 'cancelled' ? 'text-red-600' :
+                                  'text-foreground'
+                                }`}>
+                                  {o.status === 'paid' ? 'Betaald' :
+                                   o.status === 'created' ? 'In behandeling' :
+                                   o.status === 'cancelled' ? 'Geannuleerd' :
+                                   o.status === 'refunded' ? 'Terugbetaald' :
+                                   o.status}
+                                </span>
                               </p>
                               <p>
                                 <span className="text-muted-foreground">Datum:</span>{' '}
-                                {new Date(o.createdAt).toLocaleString('nl-NL')}
+                                <span className="text-foreground">
+                                  {new Date(o.createdAt).toLocaleDateString('nl-NL', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
                               </p>
+                              {o.externalRef && (
+                                <p>
+                                  <span className="text-muted-foreground">Referentie:</span>{' '}
+                                  <span className="text-foreground font-mono text-xs">{o.externalRef}</span>
+                                </p>
+                              )}
                             </div>
                             {Array.isArray(o.items) && o.items.length ? (
                               <div className="mt-4 pt-4 border-t border-border">

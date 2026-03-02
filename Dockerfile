@@ -37,6 +37,6 @@ ENV NODE_ENV=production
 
 EXPOSE 8080
 
-# Use npx tsx directly (more reliable in Docker)
-CMD ["npx", "tsx", "server/index.ts"]
+# Use shell form to ensure environment variables are available
+CMD npm start
 

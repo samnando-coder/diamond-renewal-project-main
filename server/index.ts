@@ -242,22 +242,30 @@ app.get('/api/shop/products', async (req, res) => {
   const user = await getUserBySessionToken(token);
   const includePrice = !!user;
 
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: { name: 'asc' },
-    take: 2000,
-    select: { sku: true, name: true, brand: true, image: true, currency: true, priceCents: true },
-  });
-  return res.json({
-    products: products.map((p) => ({
-      id: p.sku,
-      name: p.name,
-      brand: p.brand,
-      image: p.image,
-      currency: p.currency,
-      priceCents: includePrice ? p.priceCents : null,
-    })),
-  });
+  try {
+    const products = await prisma.product.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+      take: 2000,
+      select: { sku: true, name: true, brand: true, image: true, currency: true, priceCents: true },
+    });
+    
+    // If database is empty, return empty array (frontend will use fallback)
+    return res.json({
+      products: products.map((p) => ({
+        id: p.sku,
+        name: p.name,
+        brand: p.brand,
+        image: p.image,
+        currency: p.currency,
+        priceCents: includePrice ? p.priceCents : null,
+      })),
+    });
+  } catch (error) {
+    // If database query fails, return empty array (frontend will use fallback)
+    console.error('[API] Error fetching products:', error);
+    return res.json({ products: [] });
+  }
 });
 
 app.post('/api/admin/shop/sync-woo', async (req, res) => {

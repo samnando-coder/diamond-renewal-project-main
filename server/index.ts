@@ -530,7 +530,10 @@ if (process.env.SERVE_STATIC === '1') {
   }
 }
 
-app.listen(env.port, () => {
-  console.log(`[api] listening on http://localhost:${env.port}`);
+app.listen(env.port, '0.0.0.0', () => {
+  console.log(`[api] Server running on port ${env.port} (bound to 0.0.0.0)`);
+  if (process.env.SERVE_STATIC === '1') {
+    console.log(`[api] Serving static files from /dist`);
+  }
 });
 

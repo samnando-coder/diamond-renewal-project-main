@@ -35,7 +35,9 @@ COPY --from=build /app/dist ./dist
 ENV SERVE_STATIC=1
 ENV NODE_ENV=production
 
-EXPOSE 8080
+# Railway sets PORT automatically via environment variable
+# EXPOSE is just documentation - Railway will use process.env.PORT
+EXPOSE 3001
 
 # Use shell form to ensure environment variables are available
 CMD npm start

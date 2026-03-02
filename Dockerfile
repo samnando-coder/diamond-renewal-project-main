@@ -31,9 +31,12 @@ COPY --from=build /app/server ./server
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/dist ./dist
 
-# Fly sets PORT automatically; we also serve static from /dist
+# Railway sets PORT automatically; we also serve static from /dist
 ENV SERVE_STATIC=1
+ENV NODE_ENV=production
 
 EXPOSE 8080
-CMD ["npm", "run", "start"]
+
+# Use npx tsx directly (more reliable in Docker)
+CMD ["npx", "tsx", "server/index.ts"]
 

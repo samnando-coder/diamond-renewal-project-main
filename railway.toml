@@ -5,6 +5,5 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "NODE_ENV=production SERVE_STATIC=1 npm start"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10

@@ -44,3 +44,11 @@ __pycache__/
 venv/
 env/
 ENV/
+
+# Large video files (use CDN or external hosting instead)
+public/*.mp4
+public/**/*.mp4
+*.mp4
+*.mov
+*.avi
+*.mkv

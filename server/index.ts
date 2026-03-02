@@ -62,24 +62,28 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   
   // Same-origin requests (frontend and backend on same domain) don't send Origin header
-  // This is normal and safe - allow it
+  // This is normal and safe - allow it when serving static files
   if (!origin) {
-    // Check if request is from same origin by comparing host
-    const host = req.headers.host;
-    const referer = req.headers.referer;
-    
     // If we're serving static files (SERVE_STATIC=1), same-origin is expected
+    // This happens when frontend and backend are on the same Railway domain
     if (process.env.SERVE_STATIC === '1') {
       return next(); // Allow same-origin requests
     }
     
-    // Otherwise, require origin header for cross-origin requests
-    return res.status(403).json({ error: 'Missing Origin.' });
+    // For cross-origin requests, origin header is required
+    // But log it for debugging
+    console.warn('[CORS] Missing Origin header for', req.method, req.path, 'from', req.headers.host);
+    return res.status(403).json({ error: 'Missing Origin header. This is required for cross-origin requests.' });
   }
   
+  // Validate origin for cross-origin requests
   if (!isAllowedOrigin(origin)) {
-    return res.status(403).json({ error: `Invalid Origin: ${origin}. Allowed: ${env.corsOrigins.join(', ')}` });
+    console.warn('[CORS] Invalid Origin:', origin, 'Allowed:', env.corsOrigins.join(', '));
+    return res.status(403).json({ 
+      error: `Invalid Origin: ${origin}. Allowed origins: ${env.corsOrigins.join(', ')}` 
+    });
   }
+  
   next();
 });
 

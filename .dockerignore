@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.cursor
+*.log
+dev.db
+*.db
+prisma/dev.db
+terminals

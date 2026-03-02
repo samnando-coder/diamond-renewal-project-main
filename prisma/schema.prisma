@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions Session[]
+  orders   Order[]
+  products Product[] @relation("ProductCreator")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  userId      String
+  createdAt   DateTime @default(now())
+  status      String   @default("created") // created | paid | cancelled | refunded
+  currency    String   @default("EUR")
+  totalCents  Int
+  source      String   @default("manual") // later: "shop"
+  externalRef String?  // e.g. shop order id
+  itemsJson   String   // JSON string: [{name, qty, priceCents}]
+  paymentProvider    String? // e.g. "stripe"
+  checkoutSessionId  String? @unique
+  paymentIntentId    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  sku         String?  @unique
+  name        String
+  brand       String
+  image       String?
+  currency    String   @default("EUR")
+  priceCents  Int
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdByUserId String?
+  createdBy       User? @relation("ProductCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([brand])
+  @@index([active])
+}
+

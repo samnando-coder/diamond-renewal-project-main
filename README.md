@@ -1,144 +1,145 @@
-# Diamond Renewal Project
+# Blue Diamonds Club - Webshop Project
 
-## How can I edit this code?
+## 📚 Documentatie
 
-You can work locally using your preferred IDE. Clone this repo and push changes.
+- **[README_FRONTEND.md](./README_FRONTEND.md)** - Complete frontend documentatie
+- **[README_BACKEND.md](./README_BACKEND.md)** - Complete backend documentatie
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Quick Start
 
-Follow these steps:
+### Installatie
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+# Clone repository
+git clone https://github.com/samnando-coder/diamond-renewal-project-main.git
+cd diamond-renewal-project-main
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Installeer dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Genereer Prisma Client
+npm run db:generate
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Development
+
+```bash
+# Start frontend (http://localhost:8080)
 npm run dev
+
+# Start backend (http://localhost:3001) - in aparte terminal
+npm run server
 ```
 
-**Edit a file directly in GitHub**
+## 🛠️ Technologie Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Frontend
+- **Vite** - Build tool en dev server
+- **React** - UI framework
+- **TypeScript** - Type safety
+- **React Router** - Client-side routing
+- **shadcn-ui** - UI component library
+- **Tailwind CSS** - Styling
 
-**Use GitHub Codespaces**
+### Backend
+- **Express** - Web framework
+- **TypeScript** - Type safety
+- **Prisma** - Database ORM
+- **PostgreSQL** - Production database
+- **Stripe** - Payment processing
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📁 Project Structuur
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-You can deploy this project using any static hosting service like Vercel, Netlify, or GitHub Pages.
-
-## Production-ready login/accounts (API + DB)
-
-This repo includes a small auth API (Express) + database (Prisma) so **accounts are stored server-side** (production-safe; no localStorage passwords).
-
-### Local development
-
-- **Frontend**: `npm run dev` (Vite on `http://localhost:8080`)
-- **API**: `npm run server` (Express on `http://localhost:3001`)
-
-Vite proxies `/api/*` to the backend during development.
-
-### Environment variables
-
-Copy `ENV.example` into your hosting platform’s environment variables (or create a local `.env` on your machine if allowed).
-
-- **DATABASE_URL**: SQLite for dev (`file:./dev.db`). For production, use Postgres and set the connection string.
-- **CORS_ORIGIN**: comma-separated allowed origins (e.g. `https://www.example.com,https://shop.example.com`)
-- **SESSION_COOKIE_DOMAIN**: set to `.example.com` if you want sessions to work across subdomains (`www` + `shop`).
-
-### Database setup
-
-Generate client + run migrations:
-
-```sh
-npx prisma generate
-npx prisma migrate deploy
+```
+├── src/              # Frontend (React)
+├── server/           # Backend (Express API)
+├── prisma/           # Database schema & migrations
+├── public/           # Static assets
+└── dist/             # Build output (na npm run build)
 ```
 
-## Webshop
+## 🔑 Environment Variables
 
-De webshop is volledig geïntegreerd met:
-- Product catalogus (met filters, search, categories)
-- Shopping cart (localStorage + context)
-- Checkout via Stripe (iDEAL + card)
-- Order management (zichtbaar in `/account`)
-- Shipping costs (gratis boven €50, anders €4.95)
+Kopieer `ENV.example` naar `.env` en vul in:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@host:5432/dbname"
+
+# CORS
+CORS_ORIGIN="https://www.bluediamonds.club,https://bluediamonds.club"
+
+# Session
+SESSION_COOKIE_NAME="bd_session"
+SESSION_COOKIE_DOMAIN=".bluediamonds.club"
+SESSION_DAYS=30
+
+# Stripe (optioneel)
+STRIPE_SECRET_KEY="sk_live_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+```
+
+Zie [README_BACKEND.md](./README_BACKEND.md) voor volledige lijst.
+
+## 🛍️ Webshop Features
+
+- ✅ Product catalogus met filters en zoeken
+- ✅ Shopping cart (localStorage + context)
+- ✅ Checkout via Stripe (iDEAL + card)
+- ✅ Order management (zichtbaar in `/account`)
+- ✅ Shipping costs (gratis boven €50, anders €4.95)
+- ✅ User authentication (login/signup)
+- ✅ Account pagina met order history
+
+## 📖 Routes
+
+### Hoofd Routes
+- `/` - Homepage
+- `/behandelingen` - Behandelingen overzicht
+- `/shop` - Webshop homepage
+- `/login` - Inloggen
+- `/aanmelden` - Aanmelden
+- `/account` - Account pagina (vereist login)
 
 ### Shop Routes
+- `/shop` - Shop homepage
+- `/shop/c/:category` - Categorie pagina
+- `/shop/search` - Zoek pagina
+- `/shop/p/:id` - Product detail
+- `/shop/cart` - Winkelwagen
+- `/shop/checkout` - Checkout
+- `/shop/checkout/success` - Bestelling bevestigd
 
-- `/shop` — Homepage
-- `/shop/search` — Alle producten / zoeken
-- `/shop/c/:category` — Categoriepagina (haar, gezicht, lichaam, wellness)
-- `/shop/p/:id` — Product detail pagina
-- `/shop/cart` — Winkelwagen
-- `/shop/checkout` — Afrekenen
-- `/shop/checkout/success` — Bestelling bevestigd
+## 💳 Payments
 
-### Product Data
+De shop gebruikt **Stripe Checkout** voor betalingen:
+- Credit/Debit Cards
+- iDEAL (Nederlandse banken)
 
-Producten worden opgehaald van `/api/shop/products` (fallback naar `src/data/shopCatalog.ts` als API niet beschikbaar is).
+Zie [README_BACKEND.md](./README_BACKEND.md#stripe-setup) voor Stripe configuratie.
 
-**Product import opties:**
-1. WooCommerce sync: `npm run sync:woo` (vereist WooCommerce API credentials)
-2. CSV import: `npm run import:product-images -- --file="products.csv"`
-3. Handmatig via Prisma Studio: `npx prisma studio`
+## 🚢 Deployment
 
-Zie `SHOP_IMAGES_IMPORT.md` voor details over product image import.
+### Frontend (Vercel)
+Zie [README_FRONTEND.md](./README_FRONTEND.md#deployment) voor Vercel deployment.
 
-## Payments (Stripe Checkout)
+### Backend (Railway)
+Zie [README_BACKEND.md](./README_BACKEND.md#deployment) voor Railway deployment.
 
-This repo supports **real payments** via **Stripe Checkout**.
+## 📝 Scripts
 
-### Required env vars
+```bash
+npm run dev              # Start frontend dev server
+npm run server           # Start backend dev server
+npm run build            # Build frontend voor productie
+npm start                # Start production server
+npm run db:generate      # Genereer Prisma Client
+npm run db:migrate       # Run database migrations
+npm run db:studio        # Open Prisma Studio
+npm run setup:production-db  # Automatische database setup
+```
 
-Set these on your API host:
+## 📚 Meer Info
 
-- `STRIPE_SECRET_KEY` (use test key in dev, live in production)
-- `STRIPE_WEBHOOK_SECRET` (from Stripe webhook settings)
-
-### Flow
-
-- Shop frontend calls `POST /api/checkout/create-session` with cart items.
-- Backend creates a pending `Order` and returns a `checkoutUrl`.
-- Customer pays on Stripe-hosted Checkout (supports iDEAL + card by default).
-- Stripe calls `POST /api/webhooks/stripe` and the backend marks the order `paid`.
-- User sees the order in `/account`.
-
-### Shipping Costs
-
-- **Free shipping**: Orders above €50.00
-- **Fixed cost**: €4.95 for orders below €50.00
-
-Shipping costs are automatically added to Stripe checkout sessions.
-
-## Deployment
-
-Zie `DEPLOYMENT.md` voor een complete deployment guide met:
-- Database setup (SQLite → PostgreSQL)
-- Environment variables configuratie
-- Stripe webhook setup
-- Build & deploy stappen
-- Troubleshooting
+- **[README_FRONTEND.md](./README_FRONTEND.md)** - Frontend documentatie (routes, API integratie, deployment)
+- **[README_BACKEND.md](./README_BACKEND.md)** - Backend documentatie (API endpoints, database, Stripe, deployment)

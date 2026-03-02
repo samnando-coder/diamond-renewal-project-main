@@ -72,22 +72,28 @@ const Account = () => {
             <div className="grid lg:grid-cols-12 gap-8">
               <aside className="lg:col-span-4">
                 <div className="bg-card border border-border rounded-sm p-6">
-                  <h2 className="font-heading text-xl text-foreground mb-4">Gegevens</h2>
+                  <h2 className="font-heading text-xl text-foreground mb-4">Accountgegevens</h2>
                   {loading ? (
-                    <p className="text-sm text-muted-foreground">Laden…</p>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-muted rounded animate-pulse" />
+                      <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+                    </div>
                   ) : data ? (
-                    <div className="space-y-2 text-sm">
-                      <p>
-                        <span className="text-muted-foreground">E-mail:</span>{' '}
-                        <span className="text-foreground">{data.profile.email}</span>
-                      </p>
-                      <p>
-                        <span className="text-muted-foreground">Naam:</span>{' '}
-                        <span className="text-foreground">{data.profile.name ?? '-'}</span>
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-4">
-                        (Bewerken van gegevens voegen we hierna toe.)
-                      </p>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-1">
+                          Naam
+                        </p>
+                        <p className="text-base font-medium text-foreground">
+                          {data.profile.name || 'Niet opgegeven'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-1">
+                          E-mailadres
+                        </p>
+                        <p className="text-base text-foreground">{data.profile.email}</p>
+                      </div>
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">Geen gegevens geladen.</p>

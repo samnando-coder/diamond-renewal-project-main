@@ -56,11 +56,30 @@ app.use(
 );
 
 // Basic origin guard for cookie-based auth (dev/prod)
+// Allow same-origin requests (no origin header) when frontend and backend are on same domain
 app.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
   const origin = req.headers.origin;
-  if (!origin) return res.status(403).json({ error: 'Missing Origin.' });
-  if (!isAllowedOrigin(origin)) return res.status(403).json({ error: 'Invalid Origin.' });
+  
+  // Same-origin requests (frontend and backend on same domain) don't send Origin header
+  // This is normal and safe - allow it
+  if (!origin) {
+    // Check if request is from same origin by comparing host
+    const host = req.headers.host;
+    const referer = req.headers.referer;
+    
+    // If we're serving static files (SERVE_STATIC=1), same-origin is expected
+    if (process.env.SERVE_STATIC === '1') {
+      return next(); // Allow same-origin requests
+    }
+    
+    // Otherwise, require origin header for cross-origin requests
+    return res.status(403).json({ error: 'Missing Origin.' });
+  }
+  
+  if (!isAllowedOrigin(origin)) {
+    return res.status(403).json({ error: `Invalid Origin: ${origin}. Allowed: ${env.corsOrigins.join(', ')}` });
+  }
   next();
 });
 

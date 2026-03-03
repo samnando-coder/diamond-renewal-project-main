@@ -14,6 +14,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { useSEO } from "@/hooks/useSEO";
 import { trackEvent } from "@/lib/analytics";
 import { apiUrl } from "@/lib/api";
+import { generateProductDescription, generateProductSpecifications, generateMetaDescription, generateStructuredData } from "@/lib/productSEO";
 
 export default function ShopProduct() {
   const { id } = useParams();
@@ -44,12 +45,37 @@ export default function ShopProduct() {
     }
   }, [product]);
   
+  // Generate SEO content
+  const metaDescription = product ? generateMetaDescription(product, product.priceCents ?? undefined) : undefined;
+  const structuredData = product ? generateStructuredData(product, product.priceCents ?? undefined) : undefined;
+
   useSEO({
-    title: product?.name,
-    description: product ? `${product.brand} — ${product.name}${product.priceCents ? ` — ${new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(product.priceCents / 100)}` : ""}` : undefined,
+    title: product ? `${product.name} - ${product.brand} | Blue Diamonds Club` : undefined,
+    description: metaDescription,
     image: product?.image ? getCloudinaryImageUrl(product.image) : undefined,
     url: typeof window !== "undefined" && product ? `${window.location.origin}/shop/p/${product.id}` : undefined,
   });
+
+  // Add structured data to page
+  React.useEffect(() => {
+    if (structuredData && typeof window !== "undefined") {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.text = JSON.stringify(structuredData);
+      script.id = "product-structured-data";
+      
+      // Remove existing structured data if present
+      const existing = document.getElementById("product-structured-data");
+      if (existing) existing.remove();
+      
+      document.head.appendChild(script);
+      
+      return () => {
+        const scriptEl = document.getElementById("product-structured-data");
+        if (scriptEl) scriptEl.remove();
+      };
+    }
+  }, [structuredData]);
 
   const directCheckout = async () => {
     if (!isAuthenticated || !product || product.priceCents == null) return;
@@ -211,22 +237,20 @@ export default function ShopProduct() {
             {[
               {
                 title: "Omschrijving",
-                body:
-                  "Een premium product uit onze salonselectie. Gebruik volgens de aanbevolen routine of vraag ons om persoonlijk advies.",
+                body: product ? generateProductDescription(product) : "Productbeschrijving wordt geladen...",
               },
               {
                 title: "Specificaties",
-                body:
-                  "Merk, inhoud en varianten worden stapsgewijs uitgebreid. Voor nu tonen we de basisinformatie die uit de shop-API beschikbaar is.",
+                body: product ? generateProductSpecifications(product) : "Specificaties worden geladen...",
               },
               {
                 title: "Reviews",
-                body: "Reviews volgen later. Wil je feedback delen? Neem gerust contact op.",
+                body: `Beoordelingen voor ${product?.name} van ${product?.brand} volgen binnenkort. Heb je ervaring met dit ${product?.brand} product? We horen graag je feedback! Neem gerust contact met ons op om je review te delen.`,
               },
             ].map((t) => (
               <details key={t.title} className="bg-card border border-border rounded-sm p-6">
                 <summary className="cursor-pointer font-heading text-lg text-foreground">{t.title}</summary>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{t.body}</p>
+                <div className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{t.body}</div>
               </details>
             ))}
           </div>

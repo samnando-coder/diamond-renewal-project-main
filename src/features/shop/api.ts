@@ -4,8 +4,9 @@ import { SHOP_PRODUCTS } from "@/data/shopCatalog";
 import { apiUrl } from '@/lib/api';
 
 export async function fetchShopProducts(): Promise<ShopProduct[]> {
-  // Always use static products from shopCatalog.ts
-  // Database products are optional (for prices when logged in)
+  // Always return static products from SHOP_PRODUCTS
+  // The API endpoint may return empty array if database is empty
+  // So we always use the static catalog as source of truth
   return SHOP_PRODUCTS.map((p) => ({
     id: p.id,
     name: p.name,

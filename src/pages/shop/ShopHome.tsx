@@ -28,13 +28,17 @@ export default function ShopHome() {
     image: getCloudinaryImageUrl("/Blue Diamonds Foto's/IMG_5602.jpg"),
     url: typeof window !== "undefined" ? `${window.location.origin}/shop` : undefined,
   });
-  // Only show products with actual images (not category placeholders)
+  // Show featured products - prefer products with actual images, but show all if needed
   const featured = products
     .filter((p) => {
-      // Check if product has a specific image (not a category placeholder)
-      // Category placeholders are like "/Blue Diamonds Foto's/IMG_5418.jpg"
-      // Real product images are URLs from productImageMap (start with https://)
-      return p.image && p.image.startsWith("https://");
+      // Prefer products with actual images (not category placeholders)
+      // But if we have less than 8 products with https:// images, include others too
+      const withHttpsImages = products.filter(p => p.image && p.image.startsWith("https://"));
+      if (withHttpsImages.length >= 8) {
+        return p.image && p.image.startsWith("https://");
+      }
+      // If we have less than 8 with https images, show all products with any image
+      return p.image;
     })
     .slice(0, 8);
 

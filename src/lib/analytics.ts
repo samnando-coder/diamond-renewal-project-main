@@ -1,6 +1,9 @@
 /**
- * Google Analytics 4 (GA4) Integration
- * Measurement ID: G-VGB25BKEWX
+ * Google Analytics / Google Ads Integration
+ * Google Ads Conversion ID: AW-410102787
+ * Google Analytics 4 ID: G-VGB25BKEWX (if needed)
+ * 
+ * Note: The gtag script is loaded directly in index.html
  */
 
 declare global {
@@ -14,7 +17,8 @@ declare global {
   }
 }
 
-const GA_MEASUREMENT_ID = 'G-VGB25BKEWX';
+const GA_MEASUREMENT_ID = 'AW-410102787'; // Google Ads Conversion ID
+const GA4_MEASUREMENT_ID = 'G-VGB25BKEWX'; // Google Analytics 4 ID (optional)
 
 /**
  * Initialize Google Analytics
@@ -41,10 +45,19 @@ export function trackPageView(path: string, title?: string) {
     return;
   }
 
+  // Track page view for Google Ads
   window.gtag('config', GA_MEASUREMENT_ID, {
     page_path: path,
     page_title: title || document.title,
   });
+
+  // Also track for GA4 if different ID
+  if (GA4_MEASUREMENT_ID && GA4_MEASUREMENT_ID !== GA_MEASUREMENT_ID) {
+    window.gtag('config', GA4_MEASUREMENT_ID, {
+      page_path: path,
+      page_title: title || document.title,
+    });
+  }
 }
 
 /**
@@ -63,7 +76,11 @@ export function trackEvent(
     return;
   }
 
-  window.gtag('event', eventName, eventParams);
+  // Send event to both Google Ads and GA4
+  window.gtag('event', eventName, {
+    ...eventParams,
+    send_to: [GA_MEASUREMENT_ID, GA4_MEASUREMENT_ID].filter(Boolean).join(','),
+  });
 }
 
 /**

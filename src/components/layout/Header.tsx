@@ -43,8 +43,8 @@ export const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-background/95 backdrop-blur-md shadow-sm py-4'
-          : 'bg-transparent py-8'
+          ? 'bg-background/95 backdrop-blur-md shadow-sm py-3'
+          : 'bg-transparent py-6'
       }`}
     >
       <div className="container mx-auto px-6">
@@ -200,7 +200,25 @@ export const Header = () => {
                 </Button>
               </div>
 
-              {!isAuthenticated ? (
+              {isAuthenticated ? (
+                <>
+                  <Link to="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full mt-2 text-xs tracking-wider uppercase">
+                      Mijn account
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2 text-xs tracking-wider uppercase"
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Uitloggen
+                  </Button>
+                </>
+              ) : (
                 <div className="grid grid-cols-2 gap-3 mt-2">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full text-xs tracking-wider uppercase">
@@ -212,30 +230,6 @@ export const Header = () => {
                       Aanmelden
                     </Button>
                   </Link>
-                </div>
-              ) : (
-                <div className="mt-2 space-y-2">
-                  <Link
-                    to="/account"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block p-3 bg-muted rounded-sm"
-                  >
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Ingelogd als</p>
-                    <p className="text-sm font-medium text-foreground mt-1">
-                      {user?.name || user?.email?.split('@')[0] || 'Account'}
-                    </p>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    className="w-full text-xs tracking-wider uppercase"
-                    onClick={() => {
-                      logout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Uitloggen
-                  </Button>
                 </div>
               )}
             </nav>

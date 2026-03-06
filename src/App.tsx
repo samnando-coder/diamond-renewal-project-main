@@ -37,6 +37,7 @@ import NotFound from "./pages/NotFound";
 import { WhatsAppFloatingButton } from "@/components/layout/WhatsAppFloatingButton";
 import Haar from "./pages/Haar";
 import LegacyBehandelingenRedirect from "./pages/LegacyBehandelingenRedirect";
+import LegacyRedirect from "./pages/LegacyRedirect";
 import WenkbrauwenWimpers from "./pages/WenkbrauwenWimpers";
 import Gezichtsbehandelingen from "./pages/Gezichtsbehandelingen";
 import LEDLichttherapie from "./pages/LEDLichttherapie";
@@ -76,6 +77,12 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/urban-wellness" element={<UrbanWellness />} />
               <Route path="/producten" element={<Producten />} />
+              {/* Legacy redirects for old product URLs - must be before /shop routes */}
+              <Route path="/producten/:slug" element={<LegacyRedirect />} />
+              <Route path="/product/:slug" element={<LegacyRedirect />} />
+              <Route path="/webshop" element={<LegacyRedirect />} />
+              <Route path="/webshop/:slug" element={<LegacyRedirect />} />
+              <Route path="/winkel" element={<LegacyRedirect />} />
               <Route path="/login" element={<Login />} />
               <Route path="/aanmelden" element={<Aanmelden />} />
               <Route path="/account" element={<Account />} />

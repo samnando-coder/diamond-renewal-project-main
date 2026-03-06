@@ -538,6 +538,50 @@ app.get('/api/checkout/session', async (req, res) => {
   });
 });
 
+// Newsletter subscription
+const newsletterSchema = z.object({
+  email: z.string().email(),
+});
+
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  const parsed = newsletterSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Ongeldig e-mailadres.' });
+  }
+
+  const { email } = parsed.data;
+
+  try {
+    // Check if already subscribed
+    const existing = await prisma.newsletterSubscriber.findUnique({
+      where: { email },
+    });
+
+    if (existing) {
+      if (existing.subscribed) {
+        return res.json({ message: 'Je bent al aangemeld voor de nieuwsbrief.' });
+      } else {
+        // Re-subscribe
+        await prisma.newsletterSubscriber.update({
+          where: { email },
+          data: { subscribed: true },
+        });
+        return res.json({ message: 'Je bent opnieuw aangemeld voor de nieuwsbrief.' });
+      }
+    }
+
+    // Create new subscription
+    await prisma.newsletterSubscriber.create({
+      data: { email, subscribed: true },
+    });
+
+    return res.json({ message: 'Bedankt voor je aanmelding! Je ontvangt binnenkort updates.' });
+  } catch (e) {
+    console.error('[Newsletter] Error:', e);
+    return res.status(500).json({ error: 'Er is iets misgegaan. Probeer het later opnieuw.' });
+  }
+});
+
 // Legacy URL redirects (301 permanent redirects for SEO)
 // These handle old URLs from Google search results to prevent 404 errors
 // IMPORTANT: These must be BEFORE the static file serving middleware

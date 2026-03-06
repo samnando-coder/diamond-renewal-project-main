@@ -23,6 +23,7 @@ import ShopCheckout from "./pages/shop/ShopCheckout";
 import ShopCheckoutSuccess from "./pages/shop/ShopCheckoutSuccess";
 import ShopProduct from "./pages/shop/ShopProduct";
 import ShopNotFound from "./pages/shop/ShopNotFound";
+import ShopLanding from "./pages/shop/ShopLanding";
 import Afspraak from "./pages/Afspraak";
 import OverOns from "./pages/OverOns";
 import Giftcard from "./pages/Giftcard";
@@ -87,7 +88,8 @@ const App = () => (
               <Route path="/aanmelden" element={<Aanmelden />} />
               <Route path="/account" element={<Account />} />
               <Route path="/shop" element={<ShopAppShell />}>
-                <Route index element={<ShopHome />} />
+                <Route index element={<ShopLanding />} />
+                <Route path="home" element={<ShopHome />} />
                 <Route path="c/:category" element={<ShopCategory />} />
                 <Route path="search" element={<ShopSearch />} />
                 <Route path="p/:id" element={<ShopProduct />} />

@@ -9,6 +9,7 @@ import { categoryLabel } from "@/features/shop/catalog";
 import type { ShopCategory } from "@/features/shop/types";
 import { getCloudinaryImageUrl } from "@/lib/cloudinaryMapping";
 import { useSEO } from "@/hooks/useSEO";
+import { NewsletterForm } from "@/components/shop/NewsletterForm";
 
 const categoryImages: Record<ShopCategory, string> = {
   haar: "/Blue Diamonds Foto's/IMG_5418.jpg",
@@ -217,20 +218,7 @@ export default function ShopHome() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Krijg af en toe een korte update met tips en productselecties.
                 </p>
-                <form className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="E-mailadres"
-                    className="h-11 w-full rounded-sm border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                  <button
-                    type="button"
-                    className="h-11 px-4 bg-accent text-accent-foreground text-xs tracking-wider uppercase font-medium hover:bg-gold-dark transition-colors"
-                  >
-                    Aanmelden
-                  </button>
-                </form>
-                <p className="mt-3 text-xs text-muted-foreground">We houden het rustig. Uitschrijven kan altijd.</p>
+                <NewsletterForm />
               </div>
             </div>
           </div>

@@ -39,7 +39,7 @@
 17. Redken All Soft Leave-in – 150 ml
 18. Redken All Soft Conditioner – 500 ml
 19. Redken All Soft Conditioner – 300 ml
-20. All Soft Shampoo – 500 ml
+20. Redken All Soft Shampoo – 500 ml
 21. Redken All Soft Shampoo – 300 ml
 
 ### Acidic Color Gloss Lijn

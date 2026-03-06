@@ -16,23 +16,15 @@ export function GoogleAnalytics() {
 
   // Initialize GA on mount
   useEffect(() => {
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initGoogleAnalytics);
-      return () => document.removeEventListener('DOMContentLoaded', initGoogleAnalytics);
-    } else {
-      initGoogleAnalytics();
-    }
+    initGoogleAnalytics();
   }, []);
 
   // Track page view on route change
   useEffect(() => {
-    // Wait a bit for GA to be ready
+    // Small delay to ensure page is fully loaded
     const timeoutId = setTimeout(() => {
-      if (window.gtag) {
-        trackPageView(location.pathname + location.search, document.title);
-      }
-    }, 300);
+      trackPageView(location.pathname + location.search, document.title);
+    }, 100);
 
     return () => clearTimeout(timeoutId);
   }, [location]);

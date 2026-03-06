@@ -541,94 +541,102 @@ app.get('/api/checkout/session', async (req, res) => {
 // Legacy URL redirects (301 permanent redirects for SEO)
 // These handle old URLs from Google search results to prevent 404 errors
 // IMPORTANT: These must be BEFORE the static file serving middleware
-
-// Product URLs - various patterns
-app.get(/^\/producten\/(.+)$/i, (req, res) => {
-  const slug = req.params[0];
-  // Remove query string if present
-  const cleanSlug = slug.split('?')[0];
-  const query = cleanSlug.replace(/[-_]/g, ' ');
-  return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
-});
-
-app.get(/^\/product\/(.+)$/i, (req, res) => {
-  const slug = req.params[0].split('?')[0];
-  // If it looks like an ID (p_1, p_2, etc. or just numbers), redirect to product page
-  if (/^p_\d+$/.test(slug) || /^\d+$/.test(slug)) {
-    return res.redirect(301, `/shop/p/${slug}`);
+app.use((req, res, next) => {
+  // Skip API routes and static assets
+  if (req.path.startsWith('/api') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)) {
+    return next();
   }
-  // Otherwise search
-  const query = slug.replace(/[-_]/g, ' ');
-  return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
-});
 
-app.get(/^\/shop\/product\/(.+)$/i, (req, res) => {
-  const id = req.params[0].split('?')[0];
-  if (/^p_\d+$/.test(id) || /^\d+$/.test(id)) {
-    return res.redirect(301, `/shop/p/${id}`);
-  }
-  const query = id.replace(/[-_]/g, ' ');
-  return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
-});
+  const path = req.path.toLowerCase();
+  const pathWithoutQuery = path.split('?')[0];
 
-app.get(/^\/webshop\/?$/i, (_req, res) => {
-  return res.redirect(301, '/shop');
-});
-
-app.get(/^\/webshop\/(.+)$/i, (req, res) => {
-  const slug = req.params[0].split('?')[0];
-  const query = slug.replace(/[-_]/g, ' ');
-  return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
-});
-
-app.get(/^\/winkel\/?$/i, (_req, res) => {
-  return res.redirect(301, '/shop');
-});
-
-// Category URLs
-app.get(/^\/producten\/categorie\/(.+)$/i, (req, res) => {
-  const category = req.params[0].split('?')[0].toLowerCase();
-  const categoryMap: Record<string, string> = {
-    haar: 'haar',
-    gezicht: 'gezicht',
-    lichaam: 'lichaam',
-    wellness: 'wellness',
-  };
-  const mapped = categoryMap[category] || category;
-  return res.redirect(301, `/shop/c/${mapped}`);
-});
-
-app.get(/^\/shop\/categorie\/(.+)$/i, (req, res) => {
-  const category = req.params[0].split('?')[0].toLowerCase();
-  return res.redirect(301, `/shop/c/${category}`);
-});
-
-// Cart/Checkout URLs
-app.get(/^\/producten\/winkelwagen\/?$/i, (_req, res) => {
-  return res.redirect(301, '/shop/cart');
-});
-
-app.get(/^\/producten\/cart\/?$/i, (_req, res) => {
-  return res.redirect(301, '/shop/cart');
-});
-
-app.get(/^\/shop\/winkelwagen\/?$/i, (_req, res) => {
-  return res.redirect(301, '/shop/cart');
-});
-
-app.get(/^\/producten\/checkout\/?$/i, (_req, res) => {
-  return res.redirect(301, '/shop/checkout');
-});
-
-// Generic producten/* redirects to shop (catch-all for any other producten paths)
-// This must be LAST among producten routes
-app.get(/^\/producten\/.+$/i, (req, res) => {
-  // Don't redirect /producten itself (handled by React Router)
-  const path = req.path;
-  if (path === '/producten' || path === '/producten/') {
+  // Exact matches first
+  if (pathWithoutQuery === '/webshop' || pathWithoutQuery === '/webshop/') {
     return res.redirect(301, '/shop');
   }
-  return res.redirect(301, '/shop');
+  if (pathWithoutQuery === '/winkel' || pathWithoutQuery === '/winkel/') {
+    return res.redirect(301, '/shop');
+  }
+  if (pathWithoutQuery === '/producten/winkelwagen' || pathWithoutQuery === '/producten/winkelwagen/') {
+    return res.redirect(301, '/shop/cart');
+  }
+  if (pathWithoutQuery === '/producten/cart' || pathWithoutQuery === '/producten/cart/') {
+    return res.redirect(301, '/shop/cart');
+  }
+  if (pathWithoutQuery === '/shop/winkelwagen' || pathWithoutQuery === '/shop/winkelwagen/') {
+    return res.redirect(301, '/shop/cart');
+  }
+  if (pathWithoutQuery === '/producten/checkout' || pathWithoutQuery === '/producten/checkout/') {
+    return res.redirect(301, '/shop/checkout');
+  }
+
+  // Pattern matches
+  // /producten/:slug -> /shop/search?q=...
+  const productenMatch = pathWithoutQuery.match(/^\/producten\/(.+)$/);
+  if (productenMatch && productenMatch[1]) {
+    const slug = productenMatch[1];
+    // Skip if it's a category or cart/checkout (already handled above)
+    if (!['categorie', 'winkelwagen', 'cart', 'checkout'].includes(slug.toLowerCase())) {
+      const query = slug.replace(/[-_]/g, ' ');
+      return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
+    }
+  }
+
+  // /product/:slug -> /shop/p/:id or /shop/search?q=...
+  const productMatch = pathWithoutQuery.match(/^\/product\/(.+)$/);
+  if (productMatch && productMatch[1]) {
+    const slug = productMatch[1];
+    // If it looks like an ID (p_1, p_2, etc. or just numbers), redirect to product page
+    if (/^p_\d+$/.test(slug) || /^\d+$/.test(slug)) {
+      return res.redirect(301, `/shop/p/${slug}`);
+    }
+    // Otherwise search
+    const query = slug.replace(/[-_]/g, ' ');
+    return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
+  }
+
+  // /shop/product/:id -> /shop/p/:id or /shop/search?q=...
+  const shopProductMatch = pathWithoutQuery.match(/^\/shop\/product\/(.+)$/);
+  if (shopProductMatch && shopProductMatch[1]) {
+    const id = shopProductMatch[1];
+    if (/^p_\d+$/.test(id) || /^\d+$/.test(id)) {
+      return res.redirect(301, `/shop/p/${id}`);
+    }
+    const query = id.replace(/[-_]/g, ' ');
+    return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
+  }
+
+  // /webshop/:slug -> /shop/search?q=...
+  const webshopMatch = pathWithoutQuery.match(/^\/webshop\/(.+)$/);
+  if (webshopMatch && webshopMatch[1]) {
+    const slug = webshopMatch[1];
+    const query = slug.replace(/[-_]/g, ' ');
+    return res.redirect(301, `/shop/search?q=${encodeURIComponent(query)}`);
+  }
+
+  // /producten/categorie/:category -> /shop/c/:category
+  const categoryMatch = pathWithoutQuery.match(/^\/producten\/categorie\/(.+)$/);
+  if (categoryMatch && categoryMatch[1]) {
+    const category = categoryMatch[1].toLowerCase();
+    const categoryMap: Record<string, string> = {
+      haar: 'haar',
+      gezicht: 'gezicht',
+      lichaam: 'lichaam',
+      wellness: 'wellness',
+    };
+    const mapped = categoryMap[category] || category;
+    return res.redirect(301, `/shop/c/${mapped}`);
+  }
+
+  // /shop/categorie/:category -> /shop/c/:category
+  const shopCategoryMatch = pathWithoutQuery.match(/^\/shop\/categorie\/(.+)$/);
+  if (shopCategoryMatch && shopCategoryMatch[1]) {
+    const category = shopCategoryMatch[1].toLowerCase();
+    return res.redirect(301, `/shop/c/${category}`);
+  }
+
+  // Continue to next middleware if no redirect matched
+  next();
 });
 
 // Serve the built frontend (single-app deployment)

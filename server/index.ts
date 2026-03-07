@@ -17,6 +17,7 @@ import {
 import { getStripe } from './stripe';
 import { z } from 'zod';
 import Stripe from 'stripe';
+import bcrypt from 'bcryptjs';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';

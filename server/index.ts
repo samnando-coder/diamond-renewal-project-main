@@ -365,18 +365,63 @@ app.get('/api/account/me', async (req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res) => {
-  const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: 'Invalid payload.' });
+  try {
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      console.error('[Register] Validation error:', parsed.error);
+      return res.status(400).json({ error: 'Invalid payload.', details: parsed.error.errors });
+    }
 
-  const { email, password, name } = parsed.data;
+    const { email, password, name } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return res.status(409).json({ error: 'Account bestaat al.' });
+    try {
+      const existing = await prisma.user.findUnique({ where: { email } });
+      if (existing) {
+        return res.status(409).json({ error: 'Account bestaat al.' });
+      }
+    } catch (dbError) {
+      console.error('[Register] Database error (check existing):', dbError);
+      return res.status(500).json({ 
+        error: 'Database error bij controleren account.', 
+        details: dbError instanceof Error ? dbError.message : 'Unknown error'
+      });
+    }
 
-  const user = await createUser({ email, password, name });
-  const session = await createSession(user.id);
-  setSessionCookie(res, session.token);
-  return res.status(201).json({ email: user.email, name: user.name ?? null });
+    let user;
+    try {
+      user = await createUser({ email, password, name });
+    } catch (dbError) {
+      console.error('[Register] Database error (create user):', dbError);
+      // Check if it's a unique constraint violation (duplicate email)
+      if (dbError instanceof Error && dbError.message.includes('Unique constraint')) {
+        return res.status(409).json({ error: 'Account bestaat al.' });
+      }
+      return res.status(500).json({ 
+        error: 'Database error bij aanmaken account.', 
+        details: dbError instanceof Error ? dbError.message : 'Unknown error'
+      });
+    }
+
+    let session;
+    try {
+      session = await createSession(user.id);
+    } catch (dbError) {
+      console.error('[Register] Database error (create session):', dbError);
+      return res.status(500).json({ 
+        error: 'Database error bij aanmaken sessie.', 
+        details: dbError instanceof Error ? dbError.message : 'Unknown error'
+      });
+    }
+
+    setSessionCookie(res, session.token);
+    return res.status(201).json({ email: user.email, name: user.name ?? null });
+  } catch (error) {
+    console.error('[Register] Unexpected error:', error);
+    return res.status(500).json({ 
+      error: 'Er is een onverwachte fout opgetreden.', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 app.post('/api/auth/login', async (req, res) => {

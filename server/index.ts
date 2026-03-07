@@ -364,6 +364,94 @@ app.get('/api/account/me', async (req, res) => {
   });
 });
 
+// Update profile (name and email)
+const updateProfileSchema = z.object({
+  name: z.string().trim().min(1).max(80).nullable(),
+  email: z.string().trim().toLowerCase().email(),
+});
+
+app.post('/api/account/update-profile', async (req, res) => {
+  const token = req.cookies?.[env.sessionCookieName] as string | undefined;
+  const user = await getUserBySessionToken(token);
+  if (!user) return res.status(401).json({ error: 'Not authenticated.' });
+
+  const parsed = updateProfileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid payload.', details: parsed.error.errors });
+  }
+
+  const { name, email } = parsed.data;
+
+  // Check if email is already taken by another user
+  if (email !== user.email) {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(409).json({ error: 'Dit e-mailadres is al in gebruik.' });
+    }
+  }
+
+  try {
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name: name || null,
+        email,
+      },
+    });
+
+    return res.json({ email: updated.email, name: updated.name ?? null });
+  } catch (e) {
+    console.error('[Update Profile] Error:', e);
+    return res.status(500).json({ 
+      error: 'Er is een fout opgetreden bij het bijwerken van je profiel.',
+      details: e instanceof Error ? e.message : 'Unknown error'
+    });
+  }
+});
+
+// Change password
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+app.post('/api/account/change-password', async (req, res) => {
+  const token = req.cookies?.[env.sessionCookieName] as string | undefined;
+  const user = await getUserBySessionToken(token);
+  if (!user) return res.status(401).json({ error: 'Not authenticated.' });
+
+  const parsed = changePasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid payload.', details: parsed.error.errors });
+  }
+
+  const { currentPassword, newPassword } = parsed.data;
+
+  // Verify current password
+  const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!isValid) {
+    return res.status(401).json({ error: 'Huidig wachtwoord is onjuist.' });
+  }
+
+  // Hash new password
+  const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: newPasswordHash },
+    });
+
+    return res.json({ message: 'Wachtwoord succesvol gewijzigd.' });
+  } catch (e) {
+    console.error('[Change Password] Error:', e);
+    return res.status(500).json({ 
+      error: 'Er is een fout opgetreden bij het wijzigen van je wachtwoord.',
+      details: e instanceof Error ? e.message : 'Unknown error'
+    });
+  }
+});
+
 app.post('/api/auth/register', async (req, res) => {
   try {
     const parsed = registerSchema.safeParse(req.body);

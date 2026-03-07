@@ -23,7 +23,9 @@ export class ShopErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("[Shop] Error caught by boundary:", error, errorInfo);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[Shop] Error caught by boundary:", error, errorInfo);
+    }
   }
 
   render() {

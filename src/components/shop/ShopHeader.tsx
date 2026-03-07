@@ -172,7 +172,30 @@ export function ShopHeader() {
                 {c.label}
               </NavLink>
             ))}
-            <div className="ml-auto hidden md:flex">
+            {isAuthenticated && (
+              <NavLink
+                to="/account"
+                className={({ isActive }) =>
+                  cn(
+                    "text-xs tracking-[0.2em] uppercase whitespace-nowrap transition-colors border-b-2 pb-2 -mb-2",
+                    isActive
+                      ? "text-accent border-accent"
+                      : "text-muted-foreground border-transparent hover:text-foreground hover:border-border",
+                  )
+                }
+              >
+                Mijn Account
+              </NavLink>
+            )}
+            <div className="ml-auto hidden md:flex items-center gap-4">
+              {isAuthenticated && (
+                <Link
+                  to="/account"
+                  className="text-xs tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground"
+                >
+                  Account
+                </Link>
+              )}
               <Link to="/" className="text-xs tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground">
                 Terug naar hoofdsite
               </Link>
